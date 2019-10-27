@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE configuration  
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	 <settings>
+		<setting name="logImpl" value="LOG4J2" />
+	</settings>
+
+	<typeAliases>
+		<typeAlias alias="User" type="com.sys.entity.User" />
+		<typeAlias alias="Role" type="com.sys.entity.Role" />
+		<typeAlias alias="Menu" type="com.sys.entity.Menu" />
+		<typeAlias alias="Privilage" type="com.sys.entity.Privilage" />
+		<typeAlias alias="Entry" type="com.sys.entity.Entry" />
+		<typeAlias alias="IdentityCard" type="com.sys.entity.IdentityCard" />
+		<typeAlias alias="InforCollection" type="com.sys.entity.InforCollection" />
+		<typeAlias alias="CollectionProject" type="com.sys.entity.CollectionProject" />
+		<typeAlias alias="ActivityRecord" type="com.sys.entity.ActivityRecord" />
+		<typeAlias alias="TempOut" type="com.sys.entity.TempOut" />
+		<typeAlias alias="FinallyLeave" type="com.sys.entity.FinallyLeave" />
+		<typeAlias alias="Locker" type="com.sys.entity.Locker" />
+		<typeAlias alias="AccessCard" type="com.sys.entity.AccessCard" />
+		<typeAlias alias="Idreader" type="com.sys.entity.Idreader" />
+		<typeAlias alias="ICCard" type="com.sys.entity.ICCard" />
+		<typeAlias alias="Bracelet" type="com.sys.entity.Bracelet" />
+		<typeAlias alias="ConLog" type="com.sys.entity.ConLog" />
+		<typeAlias alias="WaitAsk" type="com.sys.entity.WaitAsk" />
+		<typeAlias alias="Infoheader" type="com.sys.entity.Infoheader" />
+		<typeAlias alias="ScarDetail" type="com.sys.entity.ScarDetail" />
+		<typeAlias alias="CheckGoods" type="com.sys.entity.CheckGoods" />
+		<typeAlias alias="PersonScrutiny" type="com.sys.entity.PersonScrutiny" />
+		<typeAlias alias="CodeTable" type="com.sys.entity.CodeTable" />
+		<typeAlias alias="CodeItem" type="com.sys.entity.CodeItem" />
+		<typeAlias alias="PoliceMan" type="com.sys.entity.PoliceMan" />
+		<typeAlias alias="PoliceStation" type="com.sys.entity.PoliceStation" />
+		<typeAlias alias="EntryPolicemen" type="com.sys.entity.EntryPolicemen" />
+		<typeAlias alias="EntryDutypolice" type="com.sys.entity.EntryDutypolice" />
+		<typeAlias alias="TempoutPolicemen" type="com.sys.entity.TempoutPolicemen" />
+		<typeAlias alias="Case" type="com.sys.entity.Case" />
+		<typeAlias alias="CaseCriminal" type="com.sys.entity.CaseCriminal" />
+		<typeAlias alias="CaseWitness" type="com.sys.entity.CaseWitness" />
+		<typeAlias alias="CaseVictim" type="com.sys.entity.CaseVictim" />
+		<typeAlias alias="CasePoliceman" type="com.sys.entity.CasePoliceman" />
+		<typeAlias alias="ScarImg" type="com.sys.entity.ScarImg" />
+		<typeAlias alias="ScarInspectPolice" type="com.sys.entity.ScarInspectPolice" />
+		<typeAlias alias="ScarInspectParty" type="com.sys.entity.ScarInspectParty" />
+		<typeAlias alias="CurrentSuspectsList" type="com.sys.entity.CurrentSuspectsList" />
+		<typeAlias alias="CaseStatistics" type="com.sys.entity.CaseStatistics" />
+		<typeAlias alias="SuspectStatistics" type="com.sys.entity.SuspectStatistics" />
+		<typeAlias alias="Goodsinspect_party" type="com.sys.entity.Goodsinspect_party" />
+		<typeAlias alias="Goodsinspect_police" type="com.sys.entity.Goodsinspect_police" />
+		<typeAlias alias="Goodsinspect_dutypolice" type="com.sys.entity.Goodsinspect_dutypolice" />
+	</typeAliases>
+
+	<!--mybatis的插件PageHelper可以帮助分页 -->
+	<plugins>
+		<plugin interceptor="com.github.pagehelper.PageHelper">
+			<property name="dialect" value="mysql" />
+			<property name="reasonable" value="false" />
+		</plugin>
+	</plugins>
+
+
+	<mappers>
+		<mapper resource="com/sys/mapper/UserMapper.xml" />
+		<mapper resource="com/sys/mapper/io/EntryMapper.xml" />
+		<mapper resource="com/sys/mapper/io/InforCollectionMapper.xml" />
+		<mapper resource="com/sys/mapper/io/ActivityRecordMapper.xml" />
+		<mapper resource="com/sys/mapper/io/TempOutMapper.xml" />
+		<mapper resource="com/sys/mapper/io/FinallyLeaveMapper.xml" />
+		<mapper resource="com/sys/mapper/io/SafetyCheckMapper.xml" />
+		<mapper resource="com/sys/mapper/em/LockerMapper.xml" />
+		<mapper resource="com/sys/mapper/em/AccessCardMapper.xml" />
+		<mapper resource="com/sys/mapper/em/IdreaderMapper.xml" />
+		<mapper resource="com/sys/mapper/common/InfoHeaderMapper.xml" />
+		<mapper resource="com/sys/mapper/em/ICMangeMapper.xml" />
+		<mapper resource="com/sys/mapper/em/BraceletMangeMapper.xml" />
+		<mapper resource="com/sys/mapper/log/SystemLogAspectMapper.xml" />
+		<mapper resource="com/sys/mapper/io/WaitAskMapper.xml" />
+		<mapper resource="com/sys/mapper/sys/PersonInitMapper.xml" />
+		<mapper resource="com/sys/mapper/io/CaseMapper.xml" />
+		<mapper resource="com/sys/mapper/io/StatusReportMapper.xml" />
+		<mapper resource="com/sys/mapper/io/ArchivesManagementMapper.xml" />
+		<mapper resource="com/sys/mapper/io/BusinessStatisticsMapper.xml" />
+		<mapper resource="com/sys/mapper/userSet/PersonInforMapper.xml" />
+	</mappers>
+
+
+
+
+
+</configuration>

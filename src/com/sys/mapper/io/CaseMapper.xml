@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.CaseDao">
+	<!-- 查找本派出所所有入区登记人员-->
+	<select id="getEntryPerson" resultType="Infoheader" parameterType="String">
+		select IDCode,name
+		from v_infoheader
+		<!-- where IDCode=#{IDCode}; -->
+	</select>
+	<!-- 查找本派出所所有警员-->
+	<select id="getpoliceman" resultType="PoliceMan" parameterType="String">
+		select ID,name
+		from policeman
+		 where policeStation=#{policeStation}; 
+	</select>
+	<!-- 保存案件 -->
+	<insert id="saveCase" parameterType="Case" useGeneratedKeys="true" keyProperty="ID">
+		insert into lawcase(name,code,caseNo,storageLoc,startTime,finishTime,caseType,caseState,leaderID,caseDescribe,policeStation)
+		values(#{name},#{code},#{caseNo},#{storageLoc},#{startTime},#{finishTime},#{caseType},#{caseState},#{leaderID},#{caseDescribe},#{policeStation})
+	</insert>
+	<!-- 保存案件 嫌疑人-->
+	<insert id="saveCaseCriminal" parameterType="CaseCriminal">
+		insert into case_criminal(caseID,cIDCode)
+		values(#{caseID},#{cIDCode})
+	</insert>
+	<!-- 保存案件 证人-->
+	<insert id="saveCaseWitness" parameterType="CaseWitness">
+		insert into case_witness(caseID,wIDCode)
+		values(#{caseID},#{wIDCode})
+	</insert>
+	<!-- 保存案件被害人-->
+	<insert id="saveCaseVictim" parameterType="CaseVictim">
+		insert into case_victim(caseID,vIDCode)
+		values(#{caseID},#{vIDCode})
+	</insert>
+	<!-- 保存案件办案组员-->
+	<insert id="saveCasePoliceman" parameterType="CasePoliceman">
+		insert into case_policeman(caseID,policeID)
+		values(#{caseID},#{policeID})
+	</insert>
+	<!-- 根据不同条件筛选案件 -->
+	<resultMap id="Case" type="Case">
+		<id property="ID" column="ID" />
+		<result property="name" column="name" />
+		<result property="caseState" column="caseState" />
+		<result property="caseType" column="caseType" />
+		<result property="leaderID" column="leaderID" />
+		<result property="policeStation" column="policeStation" />
+		<result property="startTime" column="startTime" />
+		<collection property="caseCriminal" ofType="CaseCriminal" javaType="ArrayList" column="ID"
+			select="findCaseCriminal">
+		</collection>
+		<collection property="caseWitness" ofType="CaseWitness" javaType="ArrayList" column="ID"
+			select="findCaseWitness">
+		</collection>
+		<collection property="caseVictim" ofType="CaseVictim" javaType="ArrayList" column="ID"
+			select="findCaseVictim">
+		</collection>
+		<collection property="casePoliceman" ofType="CasePoliceman" javaType="ArrayList" column="ID"
+			select="findCasePoliceman">
+		</collection>
+	</resultMap>
+	<select id="findCaseBycondition" parameterType="Map" resultMap="Case">
+		select lc.ID as ID, lc.name as name,p.name as leaderID,lc.policeStation as policeStation,startTime,
+		(select itemCaption from code_item where codeName='caseState' and itemCode=lc.caseState) as caseState,
+		(select itemCaption from code_item where codeName='caseType' and itemCode=lc.caseType) as caseType
+		from lawcase lc,policeman p
+		where lc.policeStation=#{policeStation} and lc.leaderID=p.ID
+		<if test="caseType!=null and caseType!=''">
+			and caseType=#{caseType}
+		</if>
+		 <if test="number!='' and number!=0">
+			and (select count(cc.caseID) from case_criminal cc where cc.caseID=lc.ID )=#{number}
+		</if> 
+		<if test="caseState!=null and caseState!=''">
+			and caseState=#{caseState}
+		</if>
+		order by lc.ID
+	</select>
+	<select id="findCaseCriminal" resultType="CaseCriminal">
+		select cIDCode,name,sex,frontalView,nation
+		from case_criminal cc,v_infoheader vi
+		where cc.caseID=#{ID} and cc.cIDCode=vi.IDCode
+	</select>
+	<select id="findCaseWitness" resultType="CaseWitness">
+		select wIDCode,name,sex,frontalView,nation
+		from case_witness cw,v_infoheader vi
+		where cw.caseID=#{ID} and cw.wIDCode=vi.IDCode
+	</select>
+	<select id="findCaseVictim" resultType="CaseVictim">
+		select vIDCode,name,sex,frontalView,nation
+		from case_victim cv,v_infoheader vi
+		where cv.caseID=#{ID} and cv.vIDCode=vi.IDCode
+	</select>
+	<select id="findCasePoliceman" resultType="CasePoliceman">
+		select policeID,name,sex,picture
+		from case_policeman cp,policeman p
+		where cp.caseID=#{ID} and cp.policeID=p.ID
+	</select>
+	<!-- 根据不同条件筛选案件获得案件总数量 -->
+	<select id="getCaseNumberBycondition" parameterType="Map" resultType="int">
+		select count(ID)
+		from lawcase lc
+		where policeStation=#{policeStation} 
+		<if test="caseType!=null and caseType!=''">
+			and caseType=#{caseType}
+		</if>
+		 <if test="number!='' and number!=0">
+			and (select count(cc.caseID) from case_criminal cc where cc.caseID=lc.ID )=#{number}
+		</if> 
+		<if test="caseState!=null and caseState!=''">
+			and caseState=#{caseState}
+		</if>
+	</select>
+	<!-- 根据ID查找案件 -->
+	<resultMap id="CasebyID" type="Case">
+		<id property="ID" column="ID" />
+		<result property="name" column="name" />
+		<result property="code" column="code" />
+		<result property="caseNo" column="caseNo" />
+		<result property="storageLoc" column="storageLoc" />
+		<result property="startTime" column="startTime" />
+		<result property="finishTime" column="finishTime" />
+		<result property="caseType" column="caseType" />
+		<result property="caseState" column="caseState" />
+		<result property="leaderID" column="leaderID" />
+		<result property="caseDescribe" column="caseDescribe" />
+		<result property="policeStation" column="policeStation" />
+		<collection property="caseCriminal" ofType="CaseCriminal" javaType="ArrayList" column="ID"
+			select="findCaseCriminal">
+		</collection>
+		<collection property="caseWitness" ofType="CaseWitness" javaType="ArrayList" column="ID"
+			select="findCaseWitness">
+		</collection>
+		<collection property="caseVictim" ofType="CaseVictim" javaType="ArrayList" column="ID"
+			select="findCaseVictim">
+		</collection>
+		<collection property="casePoliceman" ofType="CasePoliceman" javaType="ArrayList" column="ID"
+			select="findCasePoliceman">
+		</collection>
+	</resultMap>
+	<select id="findCaseByID" parameterType="int" resultMap="CasebyID">
+		select ID, name,code,caseNo,storageLoc,startTime,finishTime,caseType,caseState,leaderID,caseDescribe,policeStation
+		from lawcase
+		where ID=#{ID}
+	</select>
+	<!-- 根据ID删除案件  先删除与案件关联嫌疑人，证人，被害人，办案组员再删除案件-->
+	<delete id="deleteCasePoliceByid" parameterType="String">
+        delete from case_policeman
+        where  caseID IN
+        <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteCaseCriminalByid" parameterType="String">
+        delete from case_criminal
+        where  caseID IN
+        <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteCaseVictimByid" parameterType="String">
+        delete from case_victim
+        where  caseID IN
+        <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+     <delete id="deleteCaseWitnessByid" parameterType="String">
+        delete from case_witness
+        where  caseID IN
+        <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+	 <delete id="deleteCaseByid" parameterType="String">
+        delete from lawcase
+        where  ID IN
+        <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 修改案件Case -->
+    <update id="modifyCase" parameterType="Case">
+    	update lawcase
+    	set name=#{name},code=#{code},caseNo=#{caseNo},storageLoc=#{storageLoc},startTime=#{startTime},finishTime=#{finishTime},
+    	caseType=#{caseType},caseState=#{caseState},leaderID=#{leaderID},caseDescribe=#{caseDescribe},policeStation=#{policeStation}
+    	where ID=#{ID}
+    </update>
+</mapper>

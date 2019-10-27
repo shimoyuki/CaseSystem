@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.SafetyCheckDao">
+	
+	<!-- 保存人身安全检查信息 -->
+	<insert id="saveSafetyCheckInfo" parameterType="PersonScrutiny" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		personscrutiny(recordNumber,isDrink,isContage,readmeSymptom)
+		
+		VALUES(#{recordNumber},#{isDrink},#{isContage},#{readmeSymptom})
+		
+	</insert>
+	<!-- 获取伤痕详情的列表 -->
+	<select id="getScarExplainList" resultType="ScarDetail" parameterType="String">
+		select recordNumber,scarExplain,numImg,id
+		from ScarDetail 
+		where recordNumber=#{recordNumber}
+	</select>
+	<!-- 获取伤痕详情总数 -->
+	<select id="getScarExplainTotal" parameterType="String" resultType="int">
+		select count(id)
+	 	from ScarDetail
+	 	where recordNumber=#{recordNumber} 
+	</select>
+	
+	
+	<!-- 获取涉案人员物品信息列表 -->
+	<select id="getGoodsList" resultType="CheckGoods" parameterType="String">
+		select id,goodsName,quantityUnits,cabinetsNumber,
+		(select itemCaption from code_item where codeName='goodsType' and itemCode=c.goodsType) as goodsType,
+		(select itemCaption from code_item where codeName='custody' and itemCode=c.custody) as custody
+		from checkgoods c
+		where recordNumber=#{recordNumber}
+	</select>
+	
+	<!-- 获取随身物品的总数 -->
+	<select id="getGoodsTotal" parameterType="String" resultType="int">
+		select count(id)
+	 	from checkgoods
+	 	where recordNumber=#{recordNumber} 
+	</select>
+	
+	<!-- 保存涉案人员随身物品信息 -->
+	<insert id="saveHisBelongings" parameterType="CheckGoods">
+		INSERT INTO
+		checkgoods(goodsName,goodsType,quantityUnits,custody,cabinetsNumber,recordNumber)
+		
+		VALUES(#{goodsName},#{goodsType},#{quantityUnits},#{custody},#{cabinetsNumber},#{recordNumber})
+	</insert>
+	<!-- 批量删除随身物品 -->
+	<delete id="deleteHisBelongings" parameterType="Integer">
+		delete from checkgoods where id=#{id}
+	</delete>
+
+	<!-- 保存伤痕检查-业务干警签名 -->
+	<insert id="savePolicemenSignature" parameterType="ScarInspectPolice">
+		INSERT INTO
+		scarinspect_police(recordNumber,scarPolice,code)
+		VALUES(#{recordNumber},#{scarPolice},#{code})
+	</insert>
+	<!-- 保存伤痕检查-被检查人签名 -->
+	<insert id="saveReviewedSignature" parameterType="ScarInspectParty">
+		INSERT INTO
+		scarinspect_party(recordNumber,scarParty)
+		VALUES(#{recordNumber},#{scarParty})
+	</insert>
+	
+	<!-- 保存随身物品检查-被检查人签名 -->
+	<insert id="saveGoodsinspect_party" parameterType="Goodsinspect_party">
+		INSERT INTO
+		goodsinspect_party(recordNumber,goodsParty)
+		VALUES(#{recordNumber},#{goodsParty})
+	</insert>
+	
+	<!-- 保存随身物品检查-业务干警签名 -->
+	<insert id="saveGoodsinspect_police" parameterType="Goodsinspect_police">
+		INSERT INTO
+		goodsinspect_police(recordNumber,goodsPolice,code)
+		VALUES(#{recordNumber},#{goodsPolice},#{code})
+	</insert>
+	
+	<!-- 保存随身物品检查-值班民警签名 -->
+	<insert id="saveGoodsinspect_dutypolice" parameterType="Goodsinspect_dutypolice">
+		INSERT INTO
+		goodsinspect_dutypolice(recordNumber,dutyPolice,dutyCode)
+		VALUES(#{recordNumber},#{dutyPolice},#{dutyCode})
+	</insert>
+	<!-- 保存伤痕 -->
+	<insert id="saveScarTreatment" parameterType="ScarDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		scardetail(recordNumber,scarArea,scarPart,scarType,scarDescribe,scarExplain,numImg)
+		
+		VALUES(#{recordNumber},#{scarArea},#{scarPart},#{scarType},#{scarDescribe},#{scarExplain},#{numImg})
+	</insert>
+		<!-- 显示入区登记业务干警与值班干警签字 -->
+	<select id="getEntryPolice" parameterType="String" resultType="EntryPolicemen">
+		select entryPolice,code from entry_policemen where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="getEntryDutyPolice" parameterType="String"
+		resultType="EntryDutypolice">
+		select dutyPolice,code from entry_dutypolice where
+		recordNumber=#{recordNumber}
+	</select>
+</mapper>

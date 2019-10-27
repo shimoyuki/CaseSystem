@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.StatusReportDao">
+	<!-- 获取今日入区嫌疑人总数 -->
+	<select id="getNowEntryCriminalNum" resultType="String" parameterType="String">
+		 SELECT COUNT(recordNumber) 
+		 FROM entry 
+		 WHERE TO_DAYS(entryTime) = TO_DAYS(NOW()) AND SUBSTRING(recordNumber,-10,1) = 'A' 
+		 and recordNumber like CONCAT('%', #{identification}, '%')
+	</select>
+	<!-- 获取今日出区嫌疑人总数 -->
+	<select id="getNowLeaveCriminalNum" resultType="String"  parameterType="String">
+		 select COUNT(recordNumber) 
+		 FROM finallyleave  
+		 WHERE TO_DAYS(leaveTime) = TO_DAYS(NOW()) and substring(recordNumber,-10,1) = 'A' 
+		 and recordNumber like CONCAT('%', #{identification}, '%')
+	</select>
+	<!-- 获取历史入区嫌疑人总数 -->
+	<select id="getEntryCriminalTotal" resultType="String" parameterType="String">
+		 SELECT COUNT(recordNumber) 
+		 FROM entry 
+		 WHERE  SUBSTRING(recordNumber,-10,1) = 'A'  and recordNumber like CONCAT('%', #{identification}, '%')
+	</select>
+	<!-- 获取历史入区非嫌疑人总数 -->
+	<select id="getEntryNotCriminalTotal" resultType="String" parameterType="String">
+		 SELECT COUNT(recordNumber) 
+		 FROM entry 
+		 WHERE  SUBSTRING(recordNumber,-10,1) != 'A'  and recordNumber like CONCAT('%', #{identification}, '%')
+	</select>
+		<!-- 获取历史出区嫌疑人总数 -->
+	<select id="getLeaveCriminalTotal" resultType="String"  parameterType="String">
+		 select COUNT(recordNumber) 
+		 FROM finallyleave  
+		 WHERE substring(recordNumber,-10,1) = 'A' and recordNumber like CONCAT('%', #{identification}, '%')
+	</select>
+	<!-- 获取今日案件 -->
+	<select id="getLawCaselTotal" resultType="String" parameterType="String">
+		SELECT COUNT(ID) 
+		FROM lawcase 
+		 WHERE policeStation=#{policeStation}
+	</select>
+	<!-- 获得当前人身安全检查室人员的信息 -->
+	<select id="getNowSafetyCheckPerson" resultType="Infoheader" parameterType="String">
+		SELECT v.name, sex,nation
+		FROM activityrecord a,v_infoheader  v
+		WHERE roomCode=(SELECT roomCode FROM  `room` WHERE roomFunction='3' AND policeStation=#{policeStation} LIMIT 1)
+		AND a.recordNumber=v.recordNumber AND (leaveTime='' OR leaveTime IS  NULL)
+		ORDER BY enterTime DESC LIMIT 1
+	</select>
+	<!-- 获得当前信息采集室人员的信息 -->
+	<select id="getNowInforCollectionPerson" resultType="Infoheader" parameterType="String">
+		SELECT v.name, sex,nation
+		FROM activityrecord a,v_infoheader  v
+		WHERE roomCode=(SELECT roomCode FROM  `room` WHERE roomFunction='4' AND policeStation=#{policeStation} LIMIT 1)
+		AND a.recordNumber=v.recordNumber AND (leaveTime='' OR leaveTime IS  NULL)
+		ORDER BY enterTime DESC LIMIT 1
+	</select>
+	<!-- 获得当前询问室人员的信息 -->
+	<select id="getNowInquiryPerson" resultType="Infoheader" parameterType="String">
+		SELECT v.name, sex,nation
+		FROM activityrecord a,v_infoheader  v
+		WHERE roomCode=(SELECT roomCode FROM  `room` WHERE roomFunction='5' AND policeStation=#{policeStation} LIMIT 1)
+		AND a.recordNumber=v.recordNumber AND (leaveTime='' OR leaveTime IS  NULL)
+		ORDER BY enterTime DESC LIMIT 1
+		
+	</select>
+	<!-- 获得当前迅问室人员的信息 -->
+	<select id="getNowInterrogatePerson" resultType="Infoheader" parameterType="String">
+		SELECT v.name, sex,nation
+		FROM activityrecord a,v_infoheader  v
+		WHERE roomCode=(SELECT roomCode FROM  `room` WHERE roomFunction='6' AND policeStation=#{policeStation} LIMIT 1)
+		AND a.recordNumber=v.recordNumber AND  (leaveTime='' OR leaveTime IS  NULL)
+		ORDER BY enterTime DESC LIMIT 1
+	</select>
+	<!-- 获得当前侯问室的等候人数 -->
+	<select id="getHouAskPeronNum" resultType="int" parameterType="String">
+		select count(ID) from waitask
+		 where policeStation=#{policeStation} and isLeave=0
+		 group by roomCode
+	</select>
+</mapper>

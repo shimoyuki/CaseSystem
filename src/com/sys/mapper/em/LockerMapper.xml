@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.em.LockerDao">
+	<!-- 增加储物柜 -->
+	<insert id="addLocker" parameterType="Locker">
+		insert into
+	 		locker
+	 	values(#{code},#{name},#{isAvailable},#{policeStation})	
+	</insert>
+	<!-- 改变储物柜状态 -->
+	<update id="updateLocker" parameterType="Locker">
+		update locker
+		set isAvailable=#{isAvailable}
+		where code=#{code} and policeStation=#{policeStation}
+	</update>
+	<!-- 删除储物柜 -->
+	<delete id="deleteLocker" parameterType="Locker">
+		delete from locker
+		where code=#{code} and policeStation=#{policeStation}
+	</delete>
+</mapper>

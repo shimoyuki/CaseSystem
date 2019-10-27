@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.EntryDao">
+	<!-- 保存身份证信息 -->
+	<insert id="saveIdentityCard" parameterType="IdentityCard">
+	 	insert ignore  into
+	 		identitycard
+	 	values(#{IDCode},#{name},#{sex},#{nation},#{birthday},#{IDPicture},#{address},#{issuingAuthority},#{issuedValidDate})
+		  <selectKey resultType="String" keyProperty="IDCode">  
+              select row_count() as IDCode from identitycard limit 1  
+          </selectKey>  
+	</insert>
+	<!-- 通过身份证号找身份证信息 -->
+	<select id="getIdentityCardByID" resultType="IdentityCard" parameterType="String">
+		select IDCode,name,sex,nation,birthday,IDPicture,address,issuingAuthority,issuedValidDate
+		from identitycard
+		where IDCode=#{IDCode};
+	</select>
+	<!-- 保存入区档案信息 -->
+	<insert id="saveEntry" parameterType="Entry">
+	 	insert into
+	 		entry
+	 	values(#{recordNumber},#{IDCode},#{recognition},#{papersType},#{staffNo},#{frontalView},#{rightView},#{leftView},#{caseID},#{IDNumber},#{currentAddr},#{language},#{telephone},#{entryTime},#{personType},#{causeCode})
+	</insert>
+	<!-- 保存入区登记业务干警签字 -->
+	<insert id="saveEntryPolicemen" parameterType="EntryPolicemen">
+		insert into entry_policemen(recordNumber,entryPolice,code)
+		values(#{recordNumber},#{entryPolice},#{code})
+	</insert>
+	<!-- 查找档案号用于生产新的档案号 -->
+	<select id="getNewRecordNumber" resultType="String" parameterType="String">
+		select MAX(recordNumber)
+		from entry
+		where recordNumber like CONCAT('%', #{recordNumber}, '%')
+	</select>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.IUserDao">
+
+	
+	<resultMap id="User" type="User">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="policeID" column="policeID" />
+		<collection property="role" ofType="Role" column="id"
+			select="getRoleSetByUserId"></collection>
+	</resultMap>
+
+	<resultMap id="Role" type="Role">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<collection property="menu" ofType="Menu" column="id"
+			select="getMenuSetByRoleId"></collection>
+	</resultMap>
+
+
+
+	<select id="getUserByName" parameterType="User" resultMap="User">
+		SELECT u.id as id ,u.name as name,u.policeID as policeID
+		 FROM user u
+		 WHERE name=#{name} and pass=#{pass}
+	</select>
+
+	<select id="getUserById" resultMap="User">
+		SELECT u.id as id ,u.name as name,u.policeID as policeID
+		 FROM user u
+		 WHERE id=#{id}
+	</select>
+	
+		<select id="getAllMenu" resultType="String">
+		select ID
+		 from menu
+	</select>
+
+	<select id="getRoleSetByUserId" resultMap="Role">
+		SELECT
+		r.ID,r.name
+		FROM user_role ur,role r
+		WHERE ur.userID=#{id} and
+		ur.roleID=r.ID
+	</select>
+
+
+	<select id="getMenuSetByRoleId" resultType="Menu">
+		SELECT
+		m.ID as ID,m.name as name,m.iconcls as iconcls,m.url as url,m.pid as pid 
+		FROM role_menu rm,menu m
+		WHERE rm.roleid=#{id} and
+		rm.menuid=m.id
+	</select>
+	<!-- 根据用户ID获得警察身份信息 -->
+	<select id="getPoliceInfor" resultType="PoliceMan" parameterType="int">
+		select p.name,picture,code,policeStation,p.Id
+		from policeman p,user u
+		where u.policeID=p.id  and u.ID=#{id}
+	</select>
+	<!--根据用户ID获得所在派出所信息-->
+	<select id="getPoliceStation" resultType="PoliceStation" parameterType="int">
+		select ps.policeStation,identification
+		from policeman p,user u,policestation ps
+		where  p.policeStation=ps.policeStation and u.policeID=p.id  and u.ID=#{id}
+	</select>
+</mapper>

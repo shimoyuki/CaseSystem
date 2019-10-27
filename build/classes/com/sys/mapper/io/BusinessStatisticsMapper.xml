@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.BusinessStatisticsDao">
+
+	<!-- 根据警员ID查询出，作为干警和组长的案件（案件类型和对应的数量） -->
+	<select id="getCaseAndNum" resultType="CaseStatistics"
+		parameterType="Integer">
+		SELECT itemCaption, COUNT(1) AS caseTypeNum
+		FROM
+		(SELECT
+		caseType FROM lawcase WHERE id IN (SELECT caseID FROM case_policeman
+		WHERE policeID=#{id})
+		UNION ALL
+		SELECT caseType FROM lawcase WHERE
+		leaderID=#{id}) AS a, code_item c
+		WHERE codeName='caseType' AND
+		itemCode=a.caseType
+		GROUP BY a.caseType
+	</select>
+
+	<!-- 根据警员ID查询出，（入区原因和对应的数量） -->
+	<select id="getSuspectAndNum" resultType="SuspectStatistics"
+		parameterType="String">
+		SELECT c.itemCaption, COUNT(1) AS causeCodeNum FROM entry e ,code_item c
+		WHERE
+
+		recordNumber IN ( SELECT recordNumber FROM entry_policemen WHERE CODE=#{code})
+		AND c.codeName='causeCode' AND itemCode=e.causeCode
+
+		GROUP BY c.itemCaption
+
+	</select>
+
+</mapper>

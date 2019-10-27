@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.userSet.PersonInforDao">
+	<!-- 获得警员详细个人信息 -->
+	<select id="getpoliceInfor" parameterType="String" resultType="PoliceMan">
+		SELECT ID,name,picture,code,birthday,sex,nation,nativePlace,idcode,currentAddr,department,duty
+		formation,location,phone,policeStation
+		 FROM PoliceMan
+		 WHERE ID=#{ID} 
+	</select>
+	<!-- 修改警员信息 -->
+	<update id="modifyPoliceInfor" parameterType="PoliceMan">
+	  update PoliceMan
+	  set picture=#{picture},currentAddr=#{currentAddr},department=#{department},duty=#{duty}
+	  ,formation=#{formation},location=#{location},phone=#{phone}
+	  where ID=#{ID}
+	</update>
+	<!-- 查找用户及拥有的角色 -->
+		<resultMap id="User" type="User">
+		<id property="id" column="ID" />
+		<result property="name" column="name" />
+		<collection property="role" ofType="Role" javaType="ArrayList" column="ID"
+			select="getRoles">
+		</collection>
+	</resultMap>
+	<select id="getUserAndRole" parameterType="int" resultMap="User">
+		select name,ID
+		from user
+		where ID=#{id}
+	</select>
+	<select id="getRoles" resultType="Role">
+		select name 
+		from user_role ur,role r
+		where ur.roleID=r.ID and ur.userID=#{ID}
+	</select>
+	<!-- 确认密码 -->
+	<select id="confirmUserPass" parameterType="Map" resultType="boolean">
+		<![CDATA[ select count(ID) from user where ID=#{id} and pass=#{pass} ]]> 
+	</select>
+	<!-- Mybatis是根据查询到的记录数进行转换的(1=true,0=false) 
+需要注意的地方：如果查询到多条记录(大于1)，返回的却是false, 这时就与我们的期望的刚好相反。这里，可以换其它方法，可以通过返回记录数，进行判断，也可以保证记录在数据库是唯一的 -->
+	<!--  修改密码-->
+	<update id="modifyUserPass"  parameterType="Map">
+		update user
+		set pass=#{pass}
+		where ID=#{id}
+	</update>
+</mapper>

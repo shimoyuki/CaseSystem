@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.WaitAskDao">
+	<!-- 进入候问室 -->
+	<insert id="entryWaitAsk" parameterType="WaitAsk">
+	 	insert into
+	 		waitask(recognition,recordNumber,roomCode,policeStation,entryTime)
+	 	values(#{recognition},#{recordNumber},#{roomCode},#{policeStation},#{entryTime})
+	</insert>
+	<!-- 离开后问室 -->
+	<update id="leaveWaitAsk" parameterType="WaitAsk">
+		UPDATE waitask SET ltime =#{ltime},isLeave=1 WHERE recognition = #{recognition} 
+	</update>
+	<!-- 查看当前侯问室人员详情 -->
+	<select id="searchWaitPerson" parameterType="Map" resultType="Infoheader">
+		select v.recordNumber,IDPicture,name
+		from v_infoheader v,waitask w
+		where w.recordNumber=v.recordNumber and roomCode=#{roomCode} and policeStation=#{policeStation} and isLeave=0
+	</select> 
+	<!-- 通过档案号查看人员入区登记详情 -->
+	<select id="searchPersonEntry" parameterType="String" resultType="Infoheader">
+		select * from v_infoheader where recordNumber=#{recordNumber}
+	</select> 
+</mapper>

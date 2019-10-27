@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.TempOutDao">
+	<!-- 保存身份证信息  useGeneratedKeys="true" keyProperty="ID"插入后返回自增ID -->
+	<insert id="saveTempOut" parameterType="TempOut"  useGeneratedKeys="true" keyProperty="ID">
+	 	insert into
+	 		tempout(recordNumber,tempOutTime,tempOutCause,detail,returnTime)
+	 	values(#{recordNumber},#{tempOutTime},#{tempOutCause},#{detail},#{returnTime})
+	</insert>
+	<!--  -->
+	<resultMap id="TempOut" type="TempOut">
+		<id property="ID" column="id" />
+		<result property="tempOutCause" column="tempOutCause" />
+		<result property="returnTime" column="returnTime" />
+		<collection property="tempoutPolicemen" ofType="TempoutPolicemen" javaType="ArrayList" column="id"
+			select="getTempOutPolice">
+			</collection>
+	</resultMap>
+	
+	<!-- 临时出区记录详情 -->
+	<select id="getTempOutbyRemb" parameterType="String" resultMap="TempOut">
+	 	select t.id as id,tempOutTime,returnTime,recordNumber,
+	 	(select itemCaption from code_item where codeName='tempOutCause' and itemCode=t.tempOutCause) as tempOutCause
+	 	from tempout t
+	 	where t.recordNumber=#{recordNumber} 
+	</select>
+	<!-- 临时出区记录总次数 -->
+	<select id="getTempOutbyRembTotal" parameterType="String" resultType="int">
+	 	select count(t.id)
+	 	from tempout t
+	 	where  t.recordNumber=#{recordNumber} 
+	</select>
+	<select id="getTempOutPolice" parameterType="String" resultType="TempoutPolicemen">
+		select tempoutPolice
+		from tempout_policemen tp
+	 	where tp.temID=#{id} 
+	</select>
+	<!-- 插入临时入区警员签字 -->
+	<insert id="saveTempOutPolice" parameterType="TempoutPolicemen">
+	 	insert into
+	 		tempout_policemen(temID,tempoutPolice,code)
+	 	values(#{temID},#{tempoutPolice},#{code})
+	</insert>
+	
+</mapper>

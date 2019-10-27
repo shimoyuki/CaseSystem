@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.sys.PersonInitDao">
+
+	<insert id="addPerson"  parameterType="PoliceMan">
+		insert into policeman(name,picture,code,birthday,sex,post,department,location,phone,policeStation)
+		values(#{name},#{picture},#{code},#{birthday},#{sex},#{post},#{department},#{location},#{phone},#{policeStation})
+	</insert>
+	<delete id="removePerson" parameterType="PoliceMan">
+		delete from policeman where id=#{id}
+	</delete>
+	<select id="searchPerson" parameterType="PoliceMan" resultType="PoliceMan">
+		select id,name,picture,code,birthday,sex,post,department,location,phone,policeStation 
+		from policeman
+		where policeStation=#{policeStation}
+		<if test="name!='' and name!=null">
+			name like '%#{name}%'
+		</if>
+	</select>
+	<update id="updatePerson" parameterType="PoliceMan">
+		update policeman 
+		set name=#{name},code=#{code},birthday=#{birthday},sex=#{sex},post=#{post},department=#{department},location=#{location},
+		phone=#{phone},policeStation=#{policeStation}
+		where id=#{id}
+	</update>
+	
+</mapper>

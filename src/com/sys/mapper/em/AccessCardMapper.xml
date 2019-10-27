@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.em.AccessCardDao">
+	<!-- 增加储物柜 -->
+	<insert id="addAccessCard" parameterType="AccessCard">
+		insert into
+	 		accessCard
+	 	(code,state,roomCode,policeStation,detail)
+	 	values(#{code},#{state},#{roomCode},#{policeStation},#{detail})	
+	</insert>
+	<!-- 改变储物柜状态 -->
+	<update id="updateAccessCard" parameterType="AccessCard">
+		update accessCard
+		set state=#{state}
+		where code=#{code} and policeStation=#{policeStation}
+	</update>
+	<!-- 删除储物柜 -->
+	<delete id="deleteAccessCard" parameterType="AccessCard">
+		delete from accessCard
+		where code=#{code} and policeStation=#{policeStation}
+	</delete>
+</mapper>

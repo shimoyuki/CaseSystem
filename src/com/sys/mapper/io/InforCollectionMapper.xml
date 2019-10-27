@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.InforCollectionDao">
+	<!-- 保存嫌疑人采集信息 -->
+	<insert id="saveInforCollection" parameterType="InforCollection">
+		insert into inforcollection
+		(recordNumber,photo,height,weight,fingerprint,blood,bodyFeature,handwriting,accent,DNA,phoneSIS,otherProject,
+		frontalPicture,rightPicture,leftPicture)
+		values(#{recordNumber},#{photo},#{height},#{weight},#{fingerprint},#{blood},#{bodyFeature},#{handwriting}
+		,#{accent},#{DNA},#{phoneSIS},#{otherProject},#{frontalPicture},#{rightPicture},#{leftPicture})
+	</insert>
+	<!-- 显示入区登记业务干警与值班干警签字 -->
+	<select id="getEntryPolice" parameterType="String" resultType="EntryPolicemen">
+		select entryPolice,code from entry_policemen where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="getEntryDutyPolice" parameterType="String"
+		resultType="EntryDutypolice">
+		select dutyPolice,code from entry_dutypolice where
+		recordNumber=#{recordNumber}
+	</select>
+</mapper>

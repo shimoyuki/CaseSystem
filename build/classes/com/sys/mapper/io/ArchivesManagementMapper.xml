@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.io.ArchivesManagementDao">
+	<!-- 查询当前在区的嫌疑人 -->
+	<select id="getCurrentSuspects" parameterType="String" resultType="Infoheader">
+		SELECT v.name,v.sex,v.nation, v.entryTime ,f.leaveTime,v.frontalView,v.IDCode
+		FROM
+		v_infoheader v, finallyleave f
+		WHERE v.recordNumber = f.recordNumber
+		AND DATE_FORMAT( f.leaveTime, '%Y-%m-%d %h:%i:%s') &lt; #{curentTime}
+	</select>
+	
+	<!-- 根据policeID获取警员编号 -->
+	<select id="getCodeByPoliceID" parameterType="Integer" resultType="String">
+		select code from policeman where id=#{id}
+	</select>
+	
+	<!-- 获取当前在区的嫌疑人列表 总数 -->
+	<select id="getCurrentSuspectsTotal" parameterType="Map" resultType="int">
+	
+	select count(a.recordNumber) from
+		(SELECT entryPolice AS busPolice,recordNumber ,
+		(SELECT v.name FROM v_infoheader v WHERE recordNumber=e.recordNumber LIMIT 1) AS NAME,
+		(SELECT v.IDCode FROM v_infoheader v WHERE recordNumber=e.recordNumber LIMIT 1) AS IDNumber,
+		(SELECT v.entryTime FROM v_infoheader v WHERE recordNumber=e.recordNumber LIMIT 1) AS entryTime,
+		(SELECT c.name FROM lawcase c WHERE c.id IN(SELECT caseID FROM case_criminal WHERE cIDCode=IDNumber)LIMIT 1) AS caseName,
+		
+		(SELECT ci.itemCaption FROM code_item ci WHERE ci.codeName='causeCode' AND ci.itemCode IN (SELECT causeCode 
+			FROM entry WHERE recordNumber=e.recordNumber) LIMIT 1) AS entryCasue,
+			
+		(SELECT ci.itemCaption FROM code_item ci WHERE ci.codeName='leaveCause' AND ci.itemCode IN (SELECT leaveCause 
+			FROM finallyleave WHERE recordNumber=e.recordNumber) LIMIT 1) AS outCasue
+		FROM entry_policemen e 
+		
+		WHERE CODE= #{code}  
+		<if test="causeCode!=null and causeCode!=''">
+			and (SELECT causeCode FROM entry WHERE recordNumber=e.recordNumber)=#{causeCode} 
+		</if>
+		 <if test="tempOutCause!='' and tempOutCause!=null">
+			and (SELECT leaveCause FROM finallyleave WHERE recordNumber=e.recordNumber)=#{tempOutCause} 
+		</if> 
+		<if test="entryTime!=null and entryTime!=''">
+		
+			and DATE_FORMAT( (SELECT v.entryTime FROM v_infoheader v WHERE recordNumber=e.recordNumber), '%Y-%m-%d')=#{entryTime}
+		</if>
+		
+		) as a
+	</select>
+	
+	<!-- 查询当前在区的嫌疑人列表 -->
+	<select id="getCurrentSuspectsList" parameterType="Map" resultType="CurrentSuspectsList">
+		SELECT entryPolice AS busPolice,recordNumber ,
+		(SELECT v.name FROM v_infoheader v WHERE recordNumber=e.recordNumber  LIMIT 1) AS NAME,
+		(SELECT v.IDCode FROM v_infoheader v WHERE recordNumber=e.recordNumber  LIMIT 1) AS IDNumber,
+		(SELECT v.entryTime FROM v_infoheader v WHERE recordNumber=e.recordNumber  LIMIT 1) AS entryTime,
+		(SELECT c.name FROM lawcase c WHERE c.id IN(SELECT caseID FROM case_criminal WHERE cIDCode=IDNumber)  LIMIT 1) AS caseName,
+		
+		(SELECT ci.itemCaption FROM code_item ci WHERE ci.codeName='causeCode' AND ci.itemCode IN (SELECT causeCode 
+			FROM entry WHERE recordNumber=e.recordNumber)  LIMIT 1) AS entryCasue,
+			
+		(SELECT ci.itemCaption FROM code_item ci WHERE ci.codeName='leaveCause' AND ci.itemCode IN (SELECT leaveCause 
+			FROM finallyleave WHERE recordNumber=e.recordNumber)  LIMIT 1) AS outCasue
+		FROM entry_policemen e 
+		
+		WHERE CODE= #{code} 
+		
+		<if test="causeCode!=null and causeCode!=''">
+			and (SELECT causeCode FROM entry WHERE recordNumber=e.recordNumber)=#{causeCode}
+		</if>
+		 <if test="tempOutCause!='' and tempOutCause!=null">
+			and (SELECT leaveCause FROM finallyleave WHERE recordNumber=e.recordNumber)=#{tempOutCause}
+		</if> 
+		<if test="entryTime!=null and entryTime!=''">
+			and  DATE_FORMAT( (SELECT v.entryTime FROM v_infoheader v WHERE recordNumber=e.recordNumber), '%Y-%m-%d')=#{entryTime}
+		</if>
+	</select>
+	
+	
+	
+	
+	
+	
+	<!-- 嫌疑人档案报告之入区登记 -->
+	<select id="showEntry" parameterType="String" resultType="Infoheader">
+		select
+		* from v_infoheader where recordNumber=#{recordNumber}
+	</select>
+	<select id="showEntryPolice" parameterType="String" resultType="EntryPolicemen">
+		select entryPolice,code from entry_policemen where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="showEntryDutyPolice" parameterType="String"
+		resultType="EntryDutypolice">
+		select dutyPolice,code from entry_dutypolice where
+		recordNumber=#{recordNumber}
+	</select>
+	<!-- 嫌疑人档案报告之人身安全检查 -->
+	<select id="showPersonscrutiny" parameterType="String"
+		resultType="PersonScrutiny">
+		select if(isDrink=1,"是","否") as isDrink,if(isContage=1,"是","否") as isContage,readmeSymptom from personscrutiny
+		where recordNumber=#{recordNumber}
+	</select>
+	<select id="showScarDetail" parameterType="String" resultType="ScarDetail">
+		select scarArea,scarPart,scarType,scarDescribe,scarExplain,numImg
+		from
+		scardetail where recordNumber=#{recordNumber}
+	</select>
+	<select id="showScarPolice" parameterType="String" resultType="ScarInspectPolice">
+		select scarPolice,code from scarinspect_police where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="showScarParty" parameterType="String" resultType="ScarInspectParty">
+		select scarParty from scarinspect_party where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="showGoods" parameterType="String" resultType="CheckGoods">
+		select
+		goodsName,quantityUnits,cabinetsNumber,
+		(select itemCaption from
+		code_item where codeName='goodsType' and
+		itemCode=goodsType) as
+		goodsType,
+		(select itemCaption from code_item
+		where codeName='custody'
+		and itemCode=custody) as custody
+		from
+		checkgoods where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="showGoodsPolice" parameterType="String" resultType="Goodsinspect_police">
+		select goodsPolice,code from goodsinspect_police where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="showGoodsDutyPolice" parameterType="String"
+		resultType="Goodsinspect_dutypolice">
+		select dutyPolice,dutyCode from goodsinspect_dutypolice
+		where
+		recordNumber=#{recordNumber}
+	</select>
+	<select id="showGoodsParty" parameterType="String" resultType="Goodsinspect_party">
+		select goodsParty from goodsinspect_party where
+		recordNumber=#{recordNumber}
+	</select>
+	<!-- 嫌疑人档案报告之 信息采集 -->
+	<select id="showInforCollection" parameterType="String"
+		resultType="InforCollection">
+		select
+		if(photo=1,"已采集","未采集") as photo,if(height=1,"已采集","未采集") as height,if(weight=1,"已采集","未采集") as weight,
+		if(fingerprint=1,"已采集","未采集") as fingerprint,if(blood=1,"已采集","未采集") as blood,if(bodyFeature=1,"已采集","未采集") as bodyFeature,
+		if(handwriting=1,"已采集","未采集") as handwriting,if(accent=1,"已采集","未采集") as  accent,if(DNA=1,"已采集","未采集") as DNA,
+		if(phoneSIS=1,"已采集","未采集") as phoneSIS,otherProject
+		from inforcollection where recordNumber=#{recordNumber}
+	</select>
+	<!-- 嫌疑人档案报告之 入区活动记录 -->
+	<select id="showActivityrecord" parameterType="String"
+		resultType="ActivityRecord">
+		select events,enterTime,leaveTime,activity,detail,roomName as roomCode
+		from  activityrecord a ,room c
+		where recordNumber=#{recordNumber} and a.roomCode=c.roomCode
+	</select>
+	<!-- 嫌疑人档案报告之 出区详情 -->
+	<resultMap id="TempOut" type="TempOut">
+		<id property="ID" column="ID" />
+		<result property="tempOutCause" column="tempOutCause" />
+		<result property="returnTime" column="returnTime" />
+		<result property="returnTime" column="returnTime" />
+		<collection property="tempoutPolicemen" ofType="TempoutPolicemen"
+			javaType="ArrayList" column="ID" select="getTempOutPolice">
+		</collection>
+	</resultMap>
+	<select id="showTempOut" parameterType="String" resultMap="TempOut">
+		select ID,tempOutTime,returnTime,recordNumber,
+		(select itemCaption from
+		code_item where codeName='tempOutCause' and
+		itemCode=t.tempOutCause) as
+		tempOutCause
+		from tempout t
+		where t.recordNumber=#{recordNumber}
+	</select>
+	<select id="getTempOutPolice" parameterType="String" resultType="TempoutPolicemen">
+		select tempoutPolice
+		from tempout_policemen
+		where temID=#{id}
+	</select>
+	<select id="showFinalLeave" parameterType="String" resultType="FinallyLeave">
+		select leaveTime,(select itemCaption from code_item where codeName='leaveCause' and itemCode=leaveCause) as leaveCause,
+		goodsDispose,goodsReceiptor,receiptorID,receiptorTime,leaveAdmin,adminTime
+		from finallyleave
+		where recordNumber=#{recordNumber}
+	</select>
+	<select id="showReturnGoods" parameterType="String" resultType="CheckGoods">
+		select goodsName,quantityUnits,cabinetsNumber,(select itemCaption from
+		code_item where codeName='goodsType' and
+		itemCode=goodsType) as
+		goodsType,
+		 if(handling=1,"已返回","未返回") as handling
+		from checkgoods 
+		where recordNumber=#{recordNumber} and goodsType='2'
+	</select>
+</mapper>

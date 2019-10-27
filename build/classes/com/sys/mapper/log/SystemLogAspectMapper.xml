@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.log.ConLogDao">
+
+	<insert id="insertSelective" parameterType="ConLog">
+		INSERT INTO 
+		conlog (userId,userName,loginTime,issucceed,ip,logoutTime)
+		VALUES(#{userID},#{userName},#{loginTime},#{isSucceed},#{IP},#{logoutTime})
+	</insert>
+	
+	
+</mapper>

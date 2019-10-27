@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.dao.common.InfoHeaderDao">
+	
+	<select id="searchBaseInfo" parameterType="String" resultType="Infoheader">
+		select * from v_infoheader where recognition=#{recognition}
+		order by entryTime  desc limit 1
+	</select>
+	<!-- 字典表查询  通过字段名查询对应数据 -->
+	<select id="getListByCodeName"  parameterType="String" resultType="CodeItem">
+		select codeName,itemCaption,itemCode from code_item where codeName=#{codeName} 
+		order by itemCode 
+	</select>
+	<!-- 查询字段表所有字段 -->
+	<select id="getAllField" resultType="CodeTable">
+		select codeName,caption from code_table
+	</select>
+	<!--根据字段名及编码查出具体对应的值-->
+	<select id="getItemCaptionbyCode" resultType="String" parameterType="Map">
+		select itemCaption 
+		from code_item
+		 where codeName=#{codeName} and itemCode=#{itemCode}
+	</select>
+	<!-- 增加字典表字段 -->
+	<insert id="addField" parameterType="CodeItem" >
+		insert into code_item(codeName,itemCaption,itemCode)
+		values(#{codeName},#{itemCaption},#{itemCode})
+	</insert>
+	<!-- 修改字典表字段 -->
+	<update id="alterField" parameterType="CodeItem">
+		update code_item 
+		set itemCaption=#{itemCaption},itemCode=#{itemCode}
+		where id=#{id} 
+	</update>
+	<!-- 删除字典表字段 -->
+	<delete id="deleteField" parameterType="String">
+		delete from code_item where id=#{id}
+	</delete>
+</mapper>

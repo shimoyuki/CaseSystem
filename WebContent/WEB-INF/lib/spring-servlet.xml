@@ -1,0 +1,148 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	 xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:jaxws="http://cxf.apache.org/jaxws" 
+	xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+          http://www.springframework.org/schema/context  
+          http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/aop
+          http://www.springframework.org/schema/aop/spring-aop-3.0.xsd  
+          http://www.springframework.org/schema/mvc  
+          http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+         http://www.springframework.org/schema/tx 
+	  	 http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	  	 http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
+       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.2.xsd
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+	   ">
+
+	<!-- 静态资源访问 -->
+	<mvc:resources location="/js/" mapping="/js/**" />
+	<mvc:resources location="/jquery-easyui/" mapping="/jquery-easyui/**" />
+	<mvc:resources location="/css/" mapping="/css/**" />
+	<mvc:resources location="/images/" mapping="/images/**" />
+	<mvc:resources location="/page/" mapping="/page/**" />
+	
+	<!-- 数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/policesystem?useUnicode=true&amp;characterEncoding=UTF-8" />
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+
+		<!--initialSize: 初始化连接 -->
+		<property name="initialSize">
+			<value>5</value>
+		</property>
+		<!--maxActive: 最大连接数量 -->
+		<property name="maxActive">
+			<value>20</value>
+		</property>
+		<!--maxIdle: 最大空闲连接 -->
+		<property name="maxIdle">
+			<value>1</value>
+		</property>
+		<!--minIdle: 最小空闲连接 -->
+		<property name="minIdle">
+			<value>1</value>
+		</property>
+		<!--maxWait: 超时等待时间以毫秒为单位 6000毫秒/1000等于60秒 -->
+		<property name="maxWait">
+			<value>60000</value>
+		</property>
+		<!--removeAbandoned: 是否自动回收超时连接 -->
+		<property name="removeAbandoned">
+			<value>true</value>
+		</property>
+		<!--removeAbandonedTimeout: 超时时间(以秒数为单位) -->
+		<property name="removeAbandonedTimeout">
+			<value>180</value>
+		</property>
+
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+
+		<property name="testOnReturn">
+			<value>true</value>
+		</property>
+
+		<property name="validationQuery">
+			<value>select 1</value>
+		</property>
+
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+
+		<property name="timeBetweenEvictionRunsMillis">
+			<value>3600</value>
+		</property>
+
+		<property name="minEvictableIdleTimeMillis">
+			<value>7200</value>
+		</property>
+	</bean>
+
+	
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!--引入数据源  -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 引入mybatis的配置文件路径 -->
+		<property name="configLocation" value="/WEB-INF/mybatis-config.xml"></property>
+	</bean>
+	<!-- 扫描java的mybatisDao接口 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.sys.dao" />
+	</bean>
+
+
+
+	<!-- 启动包扫描功能，以便注册带有@Controller、@Service、@repository、@Component等注解的类成为spring的bean -->
+	<mvc:annotation-driven />
+	<context:component-scan base-package="com.sys">
+	</context:component-scan>
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	
+	<!-- 事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+
+
+
+
+
+	<!-- 对模型视图名称的解析，在请求时模型视图名称添加前后缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/page/" p:suffix=".jsp" />
+
+
+	<!-- 上传文件 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8" />
+		<property name="maxUploadSize" value="10485760000" />
+		<property name="maxInMemorySize" value="40960" />
+	</bean>
+	
+	
+	<!-- 记录日志 -->
+	
+	<!-- WebService接口发布 -->  
+   <!--  <bean id="webServicesTest1" class="com.sys.service.WebServicesTestImpl" />  
+    <jaxws:endpoint address="/webServiceTest">  
+        <jaxws:implementor ref="webServicesTest1" />  
+    </jaxws:endpoint>  --> 
+</beans>  
+
+
